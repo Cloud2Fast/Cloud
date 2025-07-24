@@ -1,215 +1,209 @@
--- GardenUI v1 for Grow A Garden v1572
-
+-- GardenUI v2 — Dropdown-equipped pet spawner
 local Players = game:GetService("Players")
+local RepStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
 
--- Create ScreenGui
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "GardenUI"
+-- Placeholder remote events
+local dupPetRemote = RepStorage:FindFirstChild("DuplicatePet")
+local dupFruitRemote = RepStorage:FindFirstChild("DuplicateFruit")
+local spawnPetRemote = RepStorage:FindFirstChild("SpawnPet")
+local spawnSeedRemote = RepStorage:FindFirstChild("SpawnSeed")
+
+-- Full list of pet names
+local PetList = {
+  "Kitsune","Raccoon Dragonfly","Disco Bee","T-Rex","Capybara","Triceratops","Mole",
+  "Queen Bee","Scarlet Macaw","Night Owl","Red Fox","Iguanodon","Fennec Fox","Owl",
+  "Blood Kiwi","Orange Tabby","Spotted Deer","Rabbit","Bunny","Dog","Golden Lab","Cow",
+  "Silver Monkey","Sea Otter","Polar Bear","Turtle","Panda","Blood Hedgehog","Frog",
+  "Moon Cat","Firefly","Petal Bee","Tarantula Hawk","Moth","Ostrich","Peacock","Meerkat",
+  "Sand Snake","Bald Eagle","Raptor","Stegosaurus","Pterodactyl","Parasaurolophus",
+  "Iguanodon","Pachycephalosaurus","Tanuki","Tanchozuru","Red Fox","Dragonfly","Disco Bee",
+  "Queen Bee","Kitsune"
+}
+
+-- Create GUI
+local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+playerGui:FindFirstChild("GardenHUD")?.Destroy()
+local screenGui = Instance.new("ScreenGui", playerGui)
+screenGui.Name = "GardenHUD"
 screenGui.ResetOnSpawn = false
-screenGui.Parent = game:GetService("CoreGui")
 
 -- Main frame
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 300, 0, 200)
-mainFrame.Position = UDim2.new(0, 20, 0, 100)
-mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-mainFrame.BorderSizePixel = 0
-mainFrame.Parent = screenGui
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0,280,0,220)
+frame.Position = UDim2.new(0,20,0,100)
+frame.BackgroundColor3 = Color3.fromRGB(35,35,35)
+frame.Active = true
+frame.Draggable = true
 
--- Title
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 30)
-title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-title.Text = "Grow A Garden Helper"
-title.TextColor3 = Color3.new(1,1,1)
-title.Font = Enum.Font.SourceSansBold
-title.TextSize = 18
-title.Parent = mainFrame
+local Title = Instance.new("TextLabel", frame)
+Title.Size = UDim2.new(1,0,0,30)
+Title.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Title.Text = "Garden UI v2"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 18
 
--- Function to create buttons easily
-local function createButton(text, position)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 260, 0, 35)
-    btn.Position = position
-    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    btn.Text = text
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Font = Enum.Font.SourceSans
-    btn.TextSize = 16
-    btn.Parent = mainFrame
-    btn.AutoButtonColor = true
-    return btn
+local function createButton(text, yPos, cb)
+  local b = Instance.new("TextButton", frame)
+  b.Size = UDim2.new(0,260,0,30)
+  b.Position = UDim2.new(0,10,0,yPos)
+  b.BackgroundColor3 = Color3.fromRGB(75,75,75)
+  b.Text = text
+  b.TextColor3 = Color3.fromRGB(240,240,240)
+  b.Font = Enum.Font.SourceSans
+  b.TextSize = 16
+  b.MouseButton1Click:Connect(cb)
+  return b
 end
 
--- Placeholder functions for the actions
-local function duplicatePet()
-    print("[GardenUI] Duplicate Pet pressed")
-    -- TODO: Add your remote call here to duplicate pet you currently hold
-    -- Example: call spawn pet remote with current pet data
-end
-
-local function duplicateFruit()
-    print("[GardenUI] Duplicate Fruit pressed")
-    -- TODO: Add your remote call here to duplicate fruit you currently hold
-end
-
-local function spawnPetUI()
-    print("[GardenUI] Spawn Pet pressed")
-    showSpawnWindow("Pet")
-end
-
-local function spawnSeedUI()
-    print("[GardenUI] Spawn Seed pressed")
-    showSpawnWindow("Seed")
-end
-
--- Create the buttons
-local btnDuplicatePet = createButton("Duplicate Pet", UDim2.new(0, 20, 0, 40))
-local btnDuplicateFruit = createButton("Duplicate Fruit", UDim2.new(0, 20, 0, 80))
-local btnSpawnPet = createButton("Spawn Pet", UDim2.new(0, 20, 0, 120))
-local btnSpawnSeed = createButton("Spawn Seed", UDim2.new(0, 20, 0, 160))
-
-btnDuplicatePet.MouseButton1Click:Connect(duplicatePet)
-btnDuplicateFruit.MouseButton1Click:Connect(duplicateFruit)
-btnSpawnPet.MouseButton1Click:Connect(spawnPetUI)
-btnSpawnSeed.MouseButton1Click:Connect(spawnSeedUI)
-
--- UI popup for spawning pets/seeds with inputs and minimize/close buttons
 local spawnWindow
 
-function showSpawnWindow(kind)
-    if spawnWindow then spawnWindow:Destroy() end
-    
-    spawnWindow = Instance.new("Frame")
-    spawnWindow.Size = UDim2.new(0, 320, 0, 220)
-    spawnWindow.Position = UDim2.new(0, 350, 0, 100)
-    spawnWindow.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    spawnWindow.BorderSizePixel = 0
-    spawnWindow.Parent = screenGui
-    
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, 0, 0, 30)
-    titleLabel.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    titleLabel.TextColor3 = Color3.new(1,1,1)
-    titleLabel.Font = Enum.Font.SourceSansBold
-    titleLabel.TextSize = 18
-    titleLabel.Text = "Spawn " .. kind
-    titleLabel.Parent = spawnWindow
-    
-    local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 30, 0, 30)
-    closeBtn.Position = UDim2.new(1, -35, 0, 0)
-    closeBtn.Text = "X"
-    closeBtn.Font = Enum.Font.SourceSansBold
-    closeBtn.TextSize = 18
-    closeBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-    closeBtn.TextColor3 = Color3.new(1,1,1)
-    closeBtn.Parent = spawnWindow
-    closeBtn.MouseButton1Click:Connect(function()
-        spawnWindow:Destroy()
-        spawnWindow = nil
-    end)
-    
-    local minimizeBtn = Instance.new("TextButton")
-    minimizeBtn.Size = UDim2.new(0, 30, 0, 30)
-    minimizeBtn.Position = UDim2.new(1, -70, 0, 0)
-    minimizeBtn.Text = "_"
-    minimizeBtn.Font = Enum.Font.SourceSansBold
-    minimizeBtn.TextSize = 18
-    minimizeBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    minimizeBtn.TextColor3 = Color3.new(1,1,1)
-    minimizeBtn.Parent = spawnWindow
-    
-    local inputs = {}
-    
-    if kind == "Pet" then
-        inputs.Name = Instance.new("TextBox")
-        inputs.Name.Size = UDim2.new(0, 280, 0, 25)
-        inputs.Name.Position = UDim2.new(0, 20, 0, 50)
-        inputs.Name.PlaceholderText = "Pet Name (e.g., Dragon)"
-        inputs.Name.BackgroundColor3 = Color3.fromRGB(50,50,50)
-        inputs.Name.TextColor3 = Color3.new(1,1,1)
-        inputs.Name.Parent = spawnWindow
-        
-        inputs.Age = Instance.new("TextBox")
-        inputs.Age.Size = UDim2.new(0, 280, 0, 25)
-        inputs.Age.Position = UDim2.new(0, 20, 0, 85)
-        inputs.Age.PlaceholderText = "Age (number)"
-        inputs.Age.BackgroundColor3 = Color3.fromRGB(50,50,50)
-        inputs.Age.TextColor3 = Color3.new(1,1,1)
-        inputs.Age.Parent = spawnWindow
-        
-        inputs.Weight = Instance.new("TextBox")
-        inputs.Weight.Size = UDim2.new(0, 280, 0, 25)
-        inputs.Weight.Position = UDim2.new(0, 20, 0, 120)
-        inputs.Weight.PlaceholderText = "Weight (number)"
-        inputs.Weight.BackgroundColor3 = Color3.fromRGB(50,50,50)
-        inputs.Weight.TextColor3 = Color3.new(1,1,1)
-        inputs.Weight.Parent = spawnWindow
-        
-    elseif kind == "Seed" then
-        inputs.Name = Instance.new("TextBox")
-        inputs.Name.Size = UDim2.new(0, 280, 0, 25)
-        inputs.Name.Position = UDim2.new(0, 20, 0, 50)
-        inputs.Name.PlaceholderText = "Seed Name (e.g., AppleSeed)"
-        inputs.Name.BackgroundColor3 = Color3.fromRGB(50,50,50)
-        inputs.Name.TextColor3 = Color3.new(1,1,1)
-        inputs.Name.Parent = spawnWindow
-        
-        inputs.Amount = Instance.new("TextBox")
-        inputs.Amount.Size = UDim2.new(0, 280, 0, 25)
-        inputs.Amount.Position = UDim2.new(0, 20, 0, 85)
-        inputs.Amount.PlaceholderText = "Amount (number)"
-        inputs.Amount.BackgroundColor3 = Color3.fromRGB(50,50,50)
-        inputs.Amount.TextColor3 = Color3.new(1,1,1)
-        inputs.Amount.Parent = spawnWindow
+-- Spawn window generator
+local function showSpawnWindow(kind)
+  spawnWindow?.Destroy()
+  spawnWindow = Instance.new("Frame", screenGui)
+  spawnWindow.Size = UDim2.new(0,320,0,260)
+  spawnWindow.Position = UDim2.new(0,350,0,100)
+  spawnWindow.BackgroundColor3 = Color3.fromRGB(40,40,40)
+  spawnWindow.Active = true
+  spawnWindow.Draggable = true
+
+  local title = Instance.new("TextLabel", spawnWindow)
+  title.Size = UDim2.new(1,0,0,30)
+  title.BackgroundColor3 = Color3.fromRGB(30,30,30)
+  title.Text = (kind == "Pet" and "Spawn Pet" or "Spawn Seed")
+  title.TextColor3 = Color3.new(1,1,1)
+  title.Font = Enum.Font.SourceSansBold
+  title.TextSize = 18
+  
+  local closeBtn = Instance.new("TextButton", spawnWindow)
+  closeBtn.Size = UDim2.new(0,30,0,30)
+  closeBtn.Position = UDim2.new(1,-35,0,0)
+  closeBtn.Text = "X"
+  closeBtn.TextColor3 = Color3.new(1,1,1)
+  closeBtn.BackgroundColor3 = Color3.fromRGB(150,0,0)
+  closeBtn.Font = Enum.Font.SourceSansBold
+  closeBtn.TextSize = 18
+  closeBtn.MouseButton1Click:Connect(function()
+    spawnWindow:Destroy(); spawnWindow=nil
+  end)
+
+  local minimizeBtn = Instance.new("TextButton", spawnWindow)
+  minimizeBtn.Size = UDim2.new(0,30,0,30)
+  minimizeBtn.Position = UDim2.new(1,-70,0,0)
+  minimizeBtn.Text = "_"
+  minimizeBtn.TextColor3 = Color3.new(1,1,1)
+  minimizeBtn.BackgroundColor3 = Color3.fromRGB(80,80,80)
+  minimizeBtn.Font = Enum.Font.SourceSansBold
+  minimizeBtn.TextSize = 18
+  minimizeBtn.MouseButton1Click:Connect(function()
+    if spawnWindow.Size.Y.Offset>30 then
+      spawnWindow.Size=UDim2.new(spawnWindow.Size.X.Scale,spawnWindow.Size.X.Offset,0,30)
+    else
+      spawnWindow.Size=UDim2.new(spawnWindow.Size.X.Scale,spawnWindow.Size.X.Offset,0,260)
     end
-    
+  end)
+
+  if kind == "Pet" then
+    -- Dropdown label and box
+    local dropdownLabel = Instance.new("TextLabel", spawnWindow)
+    dropdownLabel.Position = UDim2.new(0,10,0,50)
+    dropdownLabel.Size = UDim2.new(0, 100,0,25)
+    dropdownLabel.Text = "Select Pet:"
+    dropdownLabel.TextColor3 = Color3.new(1,1,1)
+    dropdownLabel.BackgroundTransparency = 1
+
+    local dropdown = Instance.new("TextBox", spawnWindow)
+    dropdown.Position = UDim2.new(0,120,0,50)
+    dropdown.Size = UDim2.new(0,180,0,25)
+    dropdown.PlaceholderText = "Type or select pet"
+    dropdown.TextColor3 = Color3.new(1,1,1)
+    dropdown.BackgroundColor3 = Color3.fromRGB(55,55,55)
+
+    -- Age
+    local ageBox = Instance.new("TextBox", spawnWindow)
+    ageBox.Position = UDim2.new(0,10,0,90)
+    ageBox.Size = UDim2.new(0,140,0,25)
+    ageBox.PlaceholderText = "Age (1‑100)"
+    ageBox.TextColor3 = Color3.new(1,1,1)
+    ageBox.BackgroundColor3 = Color3.fromRGB(55,55,55)
+
+    -- Weight
+    local weightBox = Instance.new("TextBox", spawnWindow)
+    weightBox.Position = UDim2.new(0,160,0,90)
+    weightBox.Size = UDim2.new(0,140,0,25)
+    weightBox.PlaceholderText = "Weight (1‑20)"
+    weightBox.TextColor3 = Color3.new(1,1,1)
+    weightBox.BackgroundColor3 = Color3.fromRGB(55,55,55)
+
     -- Spawn button
-    local spawnBtn = Instance.new("TextButton")
-    spawnBtn.Size = UDim2.new(0, 280, 0, 40)
-    spawnBtn.Position = UDim2.new(0, 20, 0, kind == "Pet" and 160 or 130)
-    spawnBtn.Text = "Spawn " .. kind
-    spawnBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-    spawnBtn.TextColor3 = Color3.new(1,1,1)
-    spawnBtn.Font = Enum.Font.SourceSansBold
-    spawnBtn.TextSize = 18
-    spawnBtn.Parent = spawnWindow
-    
-    spawnBtn.MouseButton1Click:Connect(function()
-        if kind == "Pet" then
-            print("[GardenUI] Spawning Pet with:")
-            print("Name:", inputs.Name.Text)
-            print("Age:", inputs.Age.Text)
-            print("Weight:", inputs.Weight.Text)
-            -- TODO: Add remote call to spawn pet using inputs values
-        elseif kind == "Seed" then
-            print("[GardenUI] Spawning Seed with:")
-            print("Name:", inputs.Name.Text)
-            print("Amount:", inputs.Amount.Text)
-            -- TODO: Add remote call to spawn seed using inputs values
-        end
-        spawnWindow:Destroy()
-        spawnWindow = nil
+    local submit = Instance.new("TextButton", spawnWindow)
+    submit.Size = UDim2.new(0,280,0,30)
+    submit.Position = UDim2.new(0,10,0,140)
+    submit.Text = "Spawn Pet"
+    submit.TextColor3 = Color3.new(1,1,1)
+    submit.Font = Enum.Font.SourceSansBold
+    submit.TextSize = 17
+    submit.BackgroundColor3 = Color3.fromRGB(0,170,0)
+
+    submit.MouseButton1Click:Connect(function()
+      local petName = dropdown.Text
+      local age = tonumber(ageBox.Text)
+      local weight = tonumber(weightBox.Text)
+      print("[GardenUI] spawn pet",petName,age,weight)
+      if spawnPetRemote then
+        spawnPetRemote:FireServer(petName, age or 1, weight or 1)
+      else
+        warn("SpawnPet remote not found!")
+      end
+      spawnWindow:Destroy()
+      spawnWindow=nil
     end)
-    
-    minimizeBtn.MouseButton1Click:Connect(function()
-        if spawnWindow.Size.Y.Offset > 30 then
-            spawnWindow.Size = UDim2.new(spawnWindow.Size.X.Scale, spawnWindow.Size.X.Offset, 0, 30)
-        else
-            spawnWindow.Size = UDim2.new(spawnWindow.Size.X.Scale, spawnWindow.Size.X.Offset, 0, 220)
-        end
+  elseif kind=="Seed" then
+    -- Seed input
+    local seedBox = Instance.new("TextBox", spawnWindow)
+    seedBox.Position = UDim2.new(0,10,0,60)
+    seedBox.Size = UDim2.new(0,300,0,25)
+    seedBox.PlaceholderText = "Seed Name"
+    seedBox.TextColor3 = Color3.new(1,1,1)
+    seedBox.BackgroundColor3 = Color3.fromRGB(55,55,55)
+
+    local submit = Instance.new("TextButton", spawnWindow)
+    submit.Size = UDim2.new(0,300,0,30)
+    submit.Position = UDim2.new(0,10,0,110)
+    submit.Text = "Spawn Seed"
+    submit.TextColor3 = Color3.new(1,1,1)
+    submit.Font = Enum.Font.SourceSansBold
+    submit.TextSize = 17
+    submit.BackgroundColor3 = Color3.fromRGB(0,170,0)
+
+    submit.MouseButton1Click:Connect(function()
+      local seedName = seedBox.Text
+      print("[GardenUI] spawn seed",seedName)
+      if spawnSeedRemote then
+        spawnSeedRemote:FireServer(seedName)
+      else
+        warn("SpawnSeed remote not found!")
+      end
+      spawnWindow:Destroy()
+      spawnWindow=nil
     end)
+  end
 end
 
--- Hide GUI with Right Ctrl key
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.RightControl then
-        screenGui.Enabled = not screenGui.Enabled
-    end
+-- Button bindings
+createButton("Duplicate Pet", 40, function()
+  print("[GardenUI] Duplicate Pet clicked")
+  if dupPetRemote then dupPetRemote:FireServer() else warn("dupPetRemote missing") end
 end)
 
-print("[GardenUI] Loaded successfully.")
+createButton("Duplicate Fruit", 90, function()
+  print("[GardenUI] Duplicate Fruit clicked")
+  if dupFruitRemote then dupFruitRemote:FireServer() else warn("dupFruitRemote missing") end
+end)
+
+createButton("Spawn Pet", 140, function() showSpawnWindow("Pet") end)
+createButton("Spawn Seed", 180, function() showSpawnWindow("Seed") end)
+
+print("[GardenUI] Loaded v2")
