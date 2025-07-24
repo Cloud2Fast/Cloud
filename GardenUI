@@ -1,0 +1,66 @@
+-- StarterGui > ScreenGui > LocalScript
+
+-- GUI Setup
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- UI
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "GardenHUD"
+screenGui.ResetOnSpawn = false
+
+local function createButton(name, position, text, callback)
+    local button = Instance.new("TextButton")
+    button.Name = name
+    button.Size = UDim2.new(0, 150, 0, 40)
+    button.Position = position
+    button.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Text = text
+    button.Font = Enum.Font.SourceSansBold
+    button.TextSize = 18
+    button.Parent = screenGui
+
+    button.MouseButton1Click:Connect(callback)
+
+    return button
+end
+
+-- 🐾 Duplicate Current Pet
+createButton("DuplicatePet", UDim2.new(0, 20, 0, 80), "Duplicate Pet", function()
+    -- 🔁 Replace with actual duplication logic or RemoteEvent
+    print("Trying to duplicate pet...")
+    local remote = game:GetService("ReplicatedStorage"):FindFirstChild("DuplicatePet")
+    if remote then
+        remote:FireServer()
+    end
+end)
+
+-- 🍇 Duplicate Current Fruit
+createButton("DuplicateFruit", UDim2.new(0, 20, 0, 130), "Duplicate Fruit", function()
+    print("Trying to duplicate fruit...")
+    local remote = game:GetService("ReplicatedStorage"):FindFirstChild("DuplicateFruit")
+    if remote then
+        remote:FireServer()
+    end
+end)
+
+-- 🐶 Spawn Specific Pet
+createButton("SpawnPet", UDim2.new(0, 20, 0, 180), "Spawn Pet", function()
+    print("Trying to spawn pet...")
+    local remote = game:GetService("ReplicatedStorage"):FindFirstChild("SpawnPet")
+    if remote then
+        remote:FireServer("PetNameHere") -- Replace with actual pet name or selection
+    end
+end)
+
+-- 🌱 Spawn Specific Seed
+createButton("SpawnSeed", UDim2.new(0, 20, 0, 230), "Spawn Seed", function()
+    print("Trying to spawn seed...")
+    local remote = game:GetService("ReplicatedStorage"):FindFirstChild("SpawnSeed")
+    if remote then
+        remote:FireServer("SeedNameHere")
+    end
+end)
+
+-- Optionally make UI draggable or toggleable
