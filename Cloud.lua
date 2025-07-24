@@ -85,4 +85,5 @@ end
 -- Button callbacks
 createButton("Duplicate Pet", 50, function() print("[CloudUI] Duplicate Pet clicked") end)
 createButton("Duplicate Fruit", 100, function() print("[CloudUI] Duplicate Fruit clicked") end)
-createButton("Spawn Pet", 150, function() print("[CloudUI] Spawn Pet clicked")
+createButton("Spawn Pet", 150, function() print("[CloudUI] Spawn Pet clicked") end)
+createButton("Spawn Seed", 200, function() print("[CloudUI] Spawn Seed clicked") end)
