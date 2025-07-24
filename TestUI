@@ -1,14 +1,8 @@
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "TestUI"
-screenGui.Parent = playerGui
-
-local textLabel = Instance.new("TextLabel")
-textLabel.Size = UDim2.new(0, 200, 0, 50)
-textLabel.Position = UDim2.new(0.5, -100, 0.5, -25)
-textLabel.BackgroundColor3 = Color3.fromRGB(0, 128, 0)
-textLabel.TextColor3 = Color3.new(1, 1, 1)
-textLabel.Text = "UI Loaded!"
-textLabel.Parent = screenGui
+print("---- Listing all RemoteEvents and RemoteFunctions in ReplicatedStorage ----")
+for _, obj in pairs(ReplicatedStorage:GetDescendants()) do
+    if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
+        print(obj:GetFullName(), " - Type:", obj.ClassName)
+    end
+end
