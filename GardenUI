@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local RepStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 
--- Remote placeholders (update names as per your game's RemoteEvents)
+-- Placeholder remote events — update these to match your game's actual names
 local dupPet = RepStorage:FindFirstChild("DuplicatePet")
 local dupFruit = RepStorage:FindFirstChild("DuplicateFruit")
 local spawnPetRemote = RepStorage:FindFirstChild("SpawnPet")
@@ -17,7 +17,7 @@ local screenGui = Instance.new("ScreenGui", player.PlayerGui)
 screenGui.Name = "GardenHUD"
 screenGui.ResetOnSpawn = false
 
--- Main Frame
+-- Main Frame (draggable)
 local frame = Instance.new("Frame", screenGui)
 frame.Name = "MainFrame"
 frame.Position = UDim2.new(0.05, 0, 0.2, 0)
@@ -49,7 +49,7 @@ local function createBtn(text, posY, cb)
     return btn
 end
 
--- Duplicate pet
+-- Button actions
 createBtn("Duplicate Pet", 40, function()
     if dupPet then
         dupPet:FireServer()
@@ -58,7 +58,6 @@ createBtn("Duplicate Pet", 40, function()
     end
 end)
 
--- Duplicate fruit
 createBtn("Duplicate Fruit", 90, function()
     if dupFruit then
         dupFruit:FireServer()
@@ -67,7 +66,6 @@ createBtn("Duplicate Fruit", 90, function()
     end
 end)
 
--- Spawn Pet
 createBtn("Spawn Pet (Input)", 140, function()
     local modal = Instance.new("Frame", screenGui)
     modal.Position = UDim2.new(0.2,0,0.3,0)
@@ -93,6 +91,7 @@ createBtn("Spawn Pet (Input)", 140, function()
         l.Text = lblText
         l.TextColor3 = Color3.new(1,1,1)
         l.BackgroundTransparency = 1
+
         local box = Instance.new("TextBox", modal)
         box.Position = UDim2.new(0,100,0,10 + (i-1)*50)
         box.Size = UDim2.new(0,180,0,25)
@@ -108,61 +107,4 @@ createBtn("Spawn Pet (Input)", 140, function()
     submit.BackgroundColor3 = Color3.fromRGB(60,180,100)
     submit.TextColor3 = Color3.new(1,1,1)
     submit.MouseButton1Click:Connect(function()
-        if spawnPetRemote then
-            spawnPetRemote:FireServer(inputs[1].Text, tonumber(inputs[2].Text), tonumber(inputs[3].Text))
-        else
-            warn("SpawnPet remote not found!")
-        end
-        modal:Destroy()
-    end)
-end)
-
--- Spawn Seed
-createBtn("Spawn Seed (Input)", 190, function()
-    local modal = Instance.new("Frame", screenGui)
-    modal.Position = UDim2.new(0.2,0,0.3,0)
-    modal.Size = UDim2.new(0,300,0,140)
-    modal.BackgroundColor3 = Color3.fromRGB(50,50,50)
-    modal.Active = true
-    modal.Draggable = true
-
-    local closeM = Instance.new("TextButton", modal)
-    closeM.Position = UDim2.new(1,-30,0,5)
-    closeM.Size = UDim2.new(0,25,0,25)
-    closeM.Text = "X"
-    closeM.TextColor3 = Color3.new(1,1,1)
-    closeM.BackgroundColor3 = Color3.fromRGB(180,50,50)
-    closeM.MouseButton1Click:Connect(modal.Destroy)
-
-    local labels = {"Seed Name"}
-    local inputs = {}
-    for i, lblText in ipairs(labels) do
-        local l = Instance.new("TextLabel", modal)
-        l.Position = UDim2.new(0,10,0,10 + (i-1)*50)
-        l.Size = UDim2.new(0,80,0,25)
-        l.Text = lblText
-        l.TextColor3 = Color3.new(1,1,1)
-        l.BackgroundTransparency = 1
-        local box = Instance.new("TextBox", modal)
-        box.Position = UDim2.new(0,100,0,10 + (i-1)*50)
-        box.Size = UDim2.new(0,180,0,25)
-        box.Text = ""
-        box.ClearTextOnFocus = false
-        table.insert(inputs, box)
-    end
-
-    local submit = Instance.new("TextButton", modal)
-    submit.Position = UDim2.new(0,90,0,90)
-    submit.Size = UDim2.new(0,120,0,25)
-    submit.Text = "Spawn Seed"
-    submit.BackgroundColor3 = Color3.fromRGB(60,180,100)
-    submit.TextColor3 = Color3.new(1,1,1)
-    submit.MouseButton1Click:Connect(function()
-        if spawnSeedRemote then
-            spawnSeedRemote:FireServer(inputs[1].Text)
-        else
-            warn("SpawnSeed remote not found!")
-        end
-        modal:Destroy()
-    end)
-end)
+        if spawn
