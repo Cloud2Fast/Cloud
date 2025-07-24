@@ -1,10 +1,15 @@
--- CloudUI with drag, minimize, close, and 4 buttons
+print("CloudUI script running...")
+
 local plr = game.Players.LocalPlayer
 local playerGui = plr:WaitForChild("PlayerGui")
-playerGui:FindFirstChild("CloudUI")?.Destroy()
+local oldGui = playerGui:FindFirstChild("CloudUI")
+if oldGui then
+    oldGui:Destroy()
+end
 
-local gui = Instance.new("ScreenGui", playerGui)
+local gui = Instance.new("ScreenGui")
 gui.Name = "CloudUI"
+gui.Parent = playerGui
 
 local frame = Instance.new("Frame", gui)
 frame.Size = UDim2.new(0, 300, 0, 260)
@@ -73,7 +78,6 @@ local function createButton(text, y, cb)
     b.MouseButton1Click:Connect(cb)
 end
 
--- Debug button actions
 createButton("Duplicate Pet", 50, function() print("Duplicate Pet clicked") end)
 createButton("Duplicate Fruit", 100, function() print("Duplicate Fruit clicked") end)
 createButton("Spawn Pet", 150, function() print("Spawn Pet clicked") end)
